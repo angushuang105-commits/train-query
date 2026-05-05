@@ -124,16 +124,13 @@
 </div>
 
 <script>
-// Cloudflare Worker 代理網址
-const WORKER_URL = 'https://tra-proxy.angus-huang105.workers.dev';
-
-// 站碼
+const WORKER_URL   = 'https://tra-proxy.angus-huang105.workers.dev';
 const XIKE_CODE    = '0960';
 const BANQIAO_CODE = '1010';
 
-// 方向說明（從實際API資料確認）：
-// Direction=0：順行，往基隆/宜蘭方向（北上）→ 板橋→汐科
-// Direction=1：逆行，往樹林/台中方向（南下）→ 汐科→板橋
+// 方向（從實際API資料確認）：
+// Direction=0：往基隆/宜蘭方向（北上）→ 板橋→汐科方向
+// Direction=1：往樹林/台中方向（南下）→ 汐科→板橋方向
 
 const TRAIN_TYPES = {
   '1':{ name:'太魯閣', cls:'type-tze' },
@@ -141,15 +138,13 @@ const TRAIN_TYPES = {
   '3':{ name:'自強',   cls:'type-express' },
   '4':{ name:'莒光',   cls:'type-express' },
   '5':{ name:'復興',   cls:'type-local' },
-  '6':{ name:'區間快', cls:'type-express' },
-  '7':{ name:'區間',   cls:'type-local' },
+  '6':{ name:'區間',   cls:'type-local' },
   '10':{ name:'區間快', cls:'type-express' },
   '11':{ name:'自強',  cls:'type-express' },
 };
 
 let currentDir = 'to-banqiao';
 
-// 時鐘
 function updateClock() {
   const n = new Date();
   document.getElementById('clock').textContent =
@@ -178,13 +173,24 @@ async function fetchTrains() {
   results.classList.remove('visible');
 
   try {
-    // 查詢出發站：汐科→板橋查汐科，板橋→汐科查板橋
     const fromCode = currentDir === 'to-banqiao' ? XIKE_CODE : BANQIAO_CODE;
     const res = await fetch(`${WORKER_URL}/?station=${fromCode}`);
     if (!res.ok) throw new Error(`查詢失敗(${res.status})`);
-    const data   = await res.json();
-    if (data.error) throw new Error(data.error);
-    const trains = data.TrainLiveBoards || [];
+
+    const raw = await res.json();
+
+    // Worker 直接回傳陣列 [...]
+    // TDX 原始格式是 { TrainLiveBoards: [...] }
+    // 兩種都處理
+    let trains = [];
+    if (Array.isArray(raw)) {
+      trains = raw;
+    } else if (raw.TrainLiveBoards) {
+      trains = raw.TrainLiveBoards;
+    } else if (raw.error) {
+      throw new Error(raw.error);
+    }
+
     renderResults(trains);
 
   } catch(err) {
@@ -196,13 +202,11 @@ async function fetchTrains() {
   }
 }
 
-// 解析 "HH:mm:ss" 或 "HH:mm" 為今日 Date
 function parseTime(str) {
   if (!str) return null;
   const [h=0, m=0, s=0] = str.split(':').map(Number);
   const d = new Date();
   d.setHours(h, m, s, 0);
-  // 若比現在早超過4小時，視為跨日班次
   if (d < new Date(Date.now() - 4*3600000)) d.setDate(d.getDate()+1);
   return d;
 }
@@ -214,32 +218,23 @@ function getActualTime(t) {
 }
 
 function renderResults(trains) {
-  const now        = new Date();
+  const now         = new Date();
   const twoHrsLater = new Date(now.getTime() + 2*3600000);
 
-  // 方向篩選：
-  // 汐科→板橋（上班）：從汐科出發，往南走 → Direction=1
-  // 板橋→汐科（下班）：從板橋出發，往北走 → Direction=0
+  // 汐科→板橋（上班）Direction=1（南下，往樹林/台中）
+  // 板橋→汐科（下班）Direction=0（北上，往基隆/宜蘭）
   const wantDir = currentDir === 'to-banqiao' ? 1 : 0;
 
   const filtered = trains.filter(t => {
-    // 方向篩選
     if (t.Direction !== wantDir) return false;
-
-    // 時間篩選
     const sched  = parseTime(t.ScheduledDepartureTime || t.ScheduledArrivalTime);
     if (!sched) return false;
     const actual = getActualTime(t);
-
-    // 實際預計時間還沒過（車還沒走）
-    if (actual < now) return false;
-    // 預定發車在2小時內
-    if (sched > twoHrsLater) return false;
-
+    if (actual < now)         return false;
+    if (sched > twoHrsLater)  return false;
     return true;
   });
 
-  // 按實際時間排序
   filtered.sort((a,b) => getActualTime(a) - getActualTime(b));
 
   const dirText = currentDir === 'to-banqiao' ? '汐科 → 板橋' : '板橋 → 汐科';
@@ -250,7 +245,7 @@ function renderResults(trains) {
   if (filtered.length === 0) {
     list.innerHTML = `<div class="no-trains">
       目前查無未來 2 小時班次<br>
-      <span style="font-size:10px">API 共回傳 ${trains.length} 筆・可能為離峰時段或資料延遲</span>
+      <span style="font-size:10px">API 共回傳 ${trains.length} 筆・可能為離峰時段</span>
     </div>`;
   } else {
     list.innerHTML = filtered.map(renderCard).join('');
@@ -266,8 +261,13 @@ function renderCard(t, idx) {
   const sched    = parseTime(t.ScheduledDepartureTime || t.ScheduledArrivalTime);
   const actual   = getActualTime(t);
   const fmt      = d => d ? [d.getHours(),d.getMinutes()].map(v=>String(v).padStart(2,'0')).join(':') : '--:--';
-  const typeCode = String(t.TrainTypeCode || '7');
+  const typeCode = String(t.TrainTypeCode || '6');
   const typeInfo = TRAIN_TYPES[typeCode] || { name:'列車', cls:'type-local' };
+
+  // EndingStationName 可能是物件 {Zh_tw:'...'} 或字串
+  const destName = (typeof t.EndingStationName === 'object')
+    ? (t.EndingStationName.Zh_tw || '---')
+    : (t.EndingStationName || '---');
 
   const delayBadge = delay === 0
     ? `<span class="delay-badge delay-0">準點</span>`
@@ -290,7 +290,7 @@ function renderCard(t, idx) {
       ${timePart}
       <div class="train-bottom">
         ${delayBadge}
-        <span class="train-dest">往 ${t.EndingStationName?.Zh_tw || t.EndingStationName || '---'}</span>
+        <span class="train-dest">往 ${destName}</span>
       </div>
     </div>`;
 }
