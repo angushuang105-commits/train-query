@@ -6,400 +6,78 @@
 <title>汐科 ⇄ 板橋 通勤列車</title>
 <style>
   @import url('https://fonts.googleapis.com/css2?family=Noto+Sans+TC:wght@300;400;500;700&family=Share+Tech+Mono&display=swap');
-
   :root {
-    --bg: #0a0e1a;
-    --panel: #111827;
-    --border: #1e2d45;
-    --accent: #00c9a7;
-    --accent2: #3b82f6;
-    --warn: #f59e0b;
-    --danger: #ef4444;
-    --text: #e2e8f0;
-    --text-dim: #64748b;
-    --text-mid: #94a3b8;
-    --mono: 'Share Tech Mono', monospace;
-    --sans: 'Noto Sans TC', sans-serif;
+    --bg:#0a0e1a; --panel:#111827; --border:#1e2d45;
+    --accent:#00c9a7; --accent2:#3b82f6; --warn:#f59e0b;
+    --text:#e2e8f0; --text-dim:#64748b;
+    --mono:'Share Tech Mono',monospace; --sans:'Noto Sans TC',sans-serif;
   }
-
-  * { box-sizing: border-box; margin: 0; padding: 0; }
-
-  body {
-    background: var(--bg);
-    color: var(--text);
-    font-family: var(--sans);
-    min-height: 100vh;
-    overflow-x: hidden;
-  }
-
-  /* Grid background */
-  body::before {
-    content: '';
-    position: fixed;
-    inset: 0;
-    background-image:
-      linear-gradient(rgba(0,201,167,0.03) 1px, transparent 1px),
-      linear-gradient(90deg, rgba(0,201,167,0.03) 1px, transparent 1px);
-    background-size: 40px 40px;
-    pointer-events: none;
-    z-index: 0;
-  }
-
-  .container {
-    position: relative;
-    z-index: 1;
-    max-width: 480px;
-    margin: 0 auto;
-    padding: 24px 16px 48px;
-  }
-
-  /* Header */
-  header {
-    text-align: center;
-    margin-bottom: 28px;
-    padding-bottom: 20px;
-    border-bottom: 1px solid var(--border);
-  }
-
-  .logo-line {
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    gap: 10px;
-    margin-bottom: 6px;
-  }
-
-  .logo-dot {
-    width: 10px; height: 10px;
-    border-radius: 50%;
-    background: var(--accent);
-    box-shadow: 0 0 12px var(--accent);
-    animation: pulse 2s infinite;
-  }
-
-  @keyframes pulse {
-    0%, 100% { opacity: 1; transform: scale(1); }
-    50% { opacity: 0.5; transform: scale(0.8); }
-  }
-
-  h1 {
-    font-size: 20px;
-    font-weight: 700;
-    letter-spacing: 4px;
-    color: var(--text);
-  }
-
-  .subtitle {
-    font-family: var(--mono);
-    font-size: 11px;
-    color: var(--text-dim);
-    letter-spacing: 2px;
-    margin-top: 4px;
-  }
-
-  /* Clock */
-  .clock {
-    font-family: var(--mono);
-    font-size: 28px;
-    color: var(--accent);
-    text-align: center;
-    letter-spacing: 3px;
-    margin-bottom: 20px;
-    text-shadow: 0 0 20px rgba(0,201,167,0.4);
-  }
-
-  /* Direction tabs */
-  .tabs {
-    display: grid;
-    grid-template-columns: 1fr 1fr;
-    gap: 8px;
-    margin-bottom: 20px;
-  }
-
-  .tab-btn {
-    padding: 14px 8px;
-    border: 1px solid var(--border);
-    background: var(--panel);
-    border-radius: 10px;
-    cursor: pointer;
-    transition: all 0.2s;
-    text-align: center;
-  }
-
-  .tab-btn.active {
-    border-color: var(--accent);
-    background: rgba(0,201,167,0.08);
-    box-shadow: 0 0 16px rgba(0,201,167,0.15);
-  }
-
-  .tab-btn:hover:not(.active) {
-    border-color: var(--border);
-    background: rgba(255,255,255,0.04);
-  }
-
-  .tab-route {
-    font-size: 14px;
-    font-weight: 700;
-    letter-spacing: 2px;
-    color: var(--text);
-    margin-bottom: 3px;
-  }
-
-  .tab-btn.active .tab-route { color: var(--accent); }
-
-  .tab-label {
-    font-size: 10px;
-    color: var(--text-dim);
-    letter-spacing: 1px;
-  }
-
-  /* Query button */
-  .query-btn {
-    width: 100%;
-    padding: 16px;
-    background: linear-gradient(135deg, rgba(0,201,167,0.15), rgba(59,130,246,0.1));
-    border: 1px solid var(--accent);
-    border-radius: 12px;
-    color: var(--accent);
-    font-family: var(--mono);
-    font-size: 14px;
-    letter-spacing: 3px;
-    cursor: pointer;
-    transition: all 0.2s;
-    margin-bottom: 20px;
-    position: relative;
-    overflow: hidden;
-  }
-
-  .query-btn:hover {
-    background: linear-gradient(135deg, rgba(0,201,167,0.25), rgba(59,130,246,0.2));
-    box-shadow: 0 0 24px rgba(0,201,167,0.3);
-    transform: translateY(-1px);
-  }
-
-  .query-btn:active { transform: translateY(0); }
-
-  .query-btn:disabled {
-    opacity: 0.5;
-    cursor: not-allowed;
-    transform: none;
-  }
-
-  /* Loading */
-  .loading {
-    display: none;
-    text-align: center;
-    padding: 32px;
-    color: var(--text-dim);
-    font-family: var(--mono);
-    font-size: 12px;
-    letter-spacing: 2px;
-  }
-
-  .loading.visible { display: block; }
-
-  .loading-bar {
-    width: 100%;
-    height: 2px;
-    background: var(--border);
-    border-radius: 1px;
-    margin-bottom: 16px;
-    overflow: hidden;
-  }
-
-  .loading-bar::after {
-    content: '';
-    display: block;
-    height: 100%;
-    width: 40%;
-    background: var(--accent);
-    border-radius: 1px;
-    animation: slide 1s infinite;
-  }
-
-  @keyframes slide {
-    0% { transform: translateX(-150%); }
-    100% { transform: translateX(400%); }
-  }
-
-  /* Error */
-  .error-box {
-    display: none;
-    background: rgba(239,68,68,0.1);
-    border: 1px solid rgba(239,68,68,0.3);
-    border-radius: 10px;
-    padding: 14px 16px;
-    font-size: 13px;
-    color: #fca5a5;
-    margin-bottom: 16px;
-    line-height: 1.6;
-  }
-  .error-box.visible { display: block; }
-
-  /* Results */
-  .results { display: none; }
-  .results.visible { display: block; }
-
-  .results-header {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    margin-bottom: 12px;
-    padding: 0 2px;
-  }
-
-  .results-title {
-    font-family: var(--mono);
-    font-size: 11px;
-    color: var(--text-dim);
-    letter-spacing: 2px;
-  }
-
-  .results-count {
-    font-family: var(--mono);
-    font-size: 11px;
-    color: var(--accent);
-  }
-
-  /* Train card */
-  .train-card {
-    background: var(--panel);
-    border: 1px solid var(--border);
-    border-radius: 12px;
-    padding: 14px 16px;
-    margin-bottom: 10px;
-    transition: border-color 0.2s;
-    animation: fadeUp 0.3s ease both;
-  }
-
-  @keyframes fadeUp {
-    from { opacity: 0; transform: translateY(8px); }
-    to { opacity: 1; transform: translateY(0); }
-  }
-
-  .train-card:nth-child(2) { animation-delay: 0.05s; }
-  .train-card:nth-child(3) { animation-delay: 0.10s; }
-  .train-card:nth-child(4) { animation-delay: 0.15s; }
-  .train-card:nth-child(5) { animation-delay: 0.20s; }
-  .train-card:nth-child(6) { animation-delay: 0.25s; }
-
-  .train-card.delayed { border-color: rgba(245,158,11,0.4); }
-  .train-card.on-time { border-color: rgba(0,201,167,0.25); }
-
-  .train-top {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    margin-bottom: 8px;
-  }
-
-  .train-no {
-    font-family: var(--mono);
-    font-size: 18px;
-    font-weight: bold;
-    color: var(--text);
-    letter-spacing: 1px;
-  }
-
-  .train-type {
-    font-size: 10px;
-    padding: 3px 8px;
-    border-radius: 20px;
-    font-family: var(--mono);
-    letter-spacing: 1px;
-  }
-
-  .type-express { background: rgba(59,130,246,0.15); color: #93c5fd; border: 1px solid rgba(59,130,246,0.3); }
-  .type-local { background: rgba(100,116,139,0.15); color: #94a3b8; border: 1px solid rgba(100,116,139,0.3); }
-  .type-tze { background: rgba(168,85,247,0.15); color: #c4b5fd; border: 1px solid rgba(168,85,247,0.3); }
-  .type-chu { background: rgba(236,72,153,0.15); color: #f9a8d4; border: 1px solid rgba(236,72,153,0.3); }
-
-  .train-times {
-    display: flex;
-    align-items: baseline;
-    gap: 10px;
-    margin-bottom: 6px;
-  }
-
-  .time-scheduled {
-    font-family: var(--mono);
-    font-size: 26px;
-    color: var(--text);
-    letter-spacing: 1px;
-  }
-
-  .time-actual {
-    font-family: var(--mono);
-    font-size: 20px;
-    color: var(--warn);
-    letter-spacing: 1px;
-  }
-
-  .time-arrow {
-    font-size: 12px;
-    color: var(--text-dim);
-  }
-
-  .train-bottom {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-  }
-
-  .delay-badge {
-    font-family: var(--mono);
-    font-size: 11px;
-    padding: 2px 8px;
-    border-radius: 4px;
-  }
-
-  .delay-0 { color: var(--accent); }
-  .delay-late { color: var(--warn); background: rgba(245,158,11,0.1); border: 1px solid rgba(245,158,11,0.2); }
-
-  .train-dest {
-    font-size: 11px;
-    color: var(--text-dim);
-    letter-spacing: 1px;
-  }
-
-  .no-trains {
-    text-align: center;
-    padding: 40px 20px;
-    color: var(--text-dim);
-    font-family: var(--mono);
-    font-size: 13px;
-    letter-spacing: 2px;
-    border: 1px dashed var(--border);
-    border-radius: 12px;
-  }
-
-  .update-time {
-    text-align: center;
-    font-family: var(--mono);
-    font-size: 10px;
-    color: var(--text-dim);
-    margin-top: 16px;
-    letter-spacing: 1px;
-  }
-
-  .tip {
-    margin-top: 24px;
-    padding: 12px 14px;
-    background: rgba(59,130,246,0.06);
-    border: 1px solid rgba(59,130,246,0.2);
-    border-radius: 8px;
-    font-size: 11px;
-    color: var(--text-dim);
-    line-height: 1.7;
-    letter-spacing: 0.5px;
-  }
-
-  .tip strong { color: var(--accent2); }
+  *{box-sizing:border-box;margin:0;padding:0;}
+  body{background:var(--bg);color:var(--text);font-family:var(--sans);min-height:100vh;overflow-x:hidden;}
+  body::before{content:'';position:fixed;inset:0;background-image:linear-gradient(rgba(0,201,167,0.03) 1px,transparent 1px),linear-gradient(90deg,rgba(0,201,167,0.03) 1px,transparent 1px);background-size:40px 40px;pointer-events:none;z-index:0;}
+  .container{position:relative;z-index:1;max-width:480px;margin:0 auto;padding:24px 16px 48px;}
+  header{text-align:center;margin-bottom:28px;padding-bottom:20px;border-bottom:1px solid var(--border);}
+  .logo-line{display:flex;align-items:center;justify-content:center;gap:10px;margin-bottom:6px;}
+  .logo-dot{width:10px;height:10px;border-radius:50%;background:var(--accent);box-shadow:0 0 12px var(--accent);animation:pulse 2s infinite;}
+  @keyframes pulse{0%,100%{opacity:1;transform:scale(1);}50%{opacity:0.5;transform:scale(0.8);}}
+  h1{font-size:20px;font-weight:700;letter-spacing:4px;}
+  .subtitle{font-family:var(--mono);font-size:11px;color:var(--text-dim);letter-spacing:2px;margin-top:4px;}
+  .clock{font-family:var(--mono);font-size:28px;color:var(--accent);text-align:center;letter-spacing:3px;margin-bottom:20px;text-shadow:0 0 20px rgba(0,201,167,0.4);}
+  .tabs{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-bottom:20px;}
+  .tab-btn{padding:14px 8px;border:1px solid var(--border);background:var(--panel);border-radius:10px;cursor:pointer;transition:all 0.2s;text-align:center;}
+  .tab-btn.active{border-color:var(--accent);background:rgba(0,201,167,0.08);box-shadow:0 0 16px rgba(0,201,167,0.15);}
+  .tab-btn:hover:not(.active){background:rgba(255,255,255,0.04);}
+  .tab-route{font-size:14px;font-weight:700;letter-spacing:2px;color:var(--text);margin-bottom:3px;}
+  .tab-btn.active .tab-route{color:var(--accent);}
+  .tab-label{font-size:10px;color:var(--text-dim);letter-spacing:1px;}
+  .query-btn{width:100%;padding:16px;background:linear-gradient(135deg,rgba(0,201,167,0.15),rgba(59,130,246,0.1));border:1px solid var(--accent);border-radius:12px;color:var(--accent);font-family:var(--mono);font-size:14px;letter-spacing:3px;cursor:pointer;transition:all 0.2s;margin-bottom:20px;}
+  .query-btn:hover{background:linear-gradient(135deg,rgba(0,201,167,0.25),rgba(59,130,246,0.2));box-shadow:0 0 24px rgba(0,201,167,0.3);transform:translateY(-1px);}
+  .query-btn:active{transform:translateY(0);}
+  .query-btn:disabled{opacity:0.5;cursor:not-allowed;transform:none;}
+  .loading{display:none;text-align:center;padding:32px;color:var(--text-dim);font-family:var(--mono);font-size:12px;letter-spacing:2px;}
+  .loading.visible{display:block;}
+  .loading-bar{width:100%;height:2px;background:var(--border);border-radius:1px;margin-bottom:16px;overflow:hidden;}
+  .loading-bar::after{content:'';display:block;height:100%;width:40%;background:var(--accent);border-radius:1px;animation:slide 1s infinite;}
+  @keyframes slide{0%{transform:translateX(-150%);}100%{transform:translateX(400%);}}
+  .error-box{display:none;background:rgba(239,68,68,0.1);border:1px solid rgba(239,68,68,0.3);border-radius:10px;padding:14px 16px;font-size:13px;color:#fca5a5;margin-bottom:16px;line-height:1.6;white-space:pre-wrap;}
+  .error-box.visible{display:block;}
+  .results{display:none;}
+  .results.visible{display:block;}
+  .results-header{display:flex;justify-content:space-between;align-items:center;margin-bottom:12px;padding:0 2px;}
+  .results-title{font-family:var(--mono);font-size:11px;color:var(--text-dim);letter-spacing:2px;}
+  .results-count{font-family:var(--mono);font-size:11px;color:var(--accent);}
+  .train-card{background:var(--panel);border:1px solid var(--border);border-radius:12px;padding:14px 16px;margin-bottom:10px;animation:fadeUp 0.3s ease both;}
+  @keyframes fadeUp{from{opacity:0;transform:translateY(8px);}to{opacity:1;transform:translateY(0);}}
+  .train-card:nth-child(2){animation-delay:.05s;} .train-card:nth-child(3){animation-delay:.1s;}
+  .train-card:nth-child(4){animation-delay:.15s;} .train-card:nth-child(5){animation-delay:.2s;}
+  .train-card:nth-child(6){animation-delay:.25s;} .train-card:nth-child(7){animation-delay:.3s;}
+  .train-card:nth-child(8){animation-delay:.35s;} .train-card:nth-child(9){animation-delay:.4s;}
+  .train-card.delayed{border-color:rgba(245,158,11,0.4);}
+  .train-card.on-time{border-color:rgba(0,201,167,0.25);}
+  .train-top{display:flex;justify-content:space-between;align-items:center;margin-bottom:8px;}
+  .train-no{font-family:var(--mono);font-size:18px;font-weight:bold;color:var(--text);letter-spacing:1px;}
+  .train-type{font-size:10px;padding:3px 8px;border-radius:20px;font-family:var(--mono);letter-spacing:1px;}
+  .type-express{background:rgba(59,130,246,0.15);color:#93c5fd;border:1px solid rgba(59,130,246,0.3);}
+  .type-local{background:rgba(100,116,139,0.15);color:#94a3b8;border:1px solid rgba(100,116,139,0.3);}
+  .type-tze{background:rgba(168,85,247,0.15);color:#c4b5fd;border:1px solid rgba(168,85,247,0.3);}
+  .type-chu{background:rgba(236,72,153,0.15);color:#f9a8d4;border:1px solid rgba(236,72,153,0.3);}
+  .train-times{display:flex;align-items:baseline;gap:10px;margin-bottom:6px;}
+  .time-scheduled{font-family:var(--mono);font-size:26px;color:var(--text);letter-spacing:1px;}
+  .time-actual{font-family:var(--mono);font-size:20px;color:var(--warn);letter-spacing:1px;}
+  .time-arrow{font-size:12px;color:var(--text-dim);}
+  .train-bottom{display:flex;justify-content:space-between;align-items:center;}
+  .delay-badge{font-family:var(--mono);font-size:11px;padding:2px 8px;border-radius:4px;}
+  .delay-0{color:var(--accent);}
+  .delay-late{color:var(--warn);background:rgba(245,158,11,0.1);border:1px solid rgba(245,158,11,0.2);}
+  .train-dest{font-size:11px;color:var(--text-dim);letter-spacing:1px;}
+  .no-trains{text-align:center;padding:40px 20px;color:var(--text-dim);font-family:var(--mono);font-size:12px;letter-spacing:1px;border:1px dashed var(--border);border-radius:12px;line-height:2;}
+  .update-time{text-align:center;font-family:var(--mono);font-size:10px;color:var(--text-dim);margin-top:16px;letter-spacing:1px;}
+  .tip{margin-top:24px;padding:12px 14px;background:rgba(59,130,246,0.06);border:1px solid rgba(59,130,246,0.2);border-radius:8px;font-size:11px;color:var(--text-dim);line-height:1.7;letter-spacing:0.5px;}
+  .tip strong{color:var(--accent2);}
 </style>
 </head>
 <body>
 <div class="container">
-
   <header>
     <div class="logo-line">
       <div class="logo-dot"></div>
@@ -422,9 +100,7 @@
     </div>
   </div>
 
-  <button class="query-btn" id="queryBtn" onclick="fetchTrains()">
-    ▶ 查詢班次
-  </button>
+  <button class="query-btn" id="queryBtn" onclick="fetchTrains()">▶ 查詢班次</button>
 
   <div class="loading" id="loading">
     <div class="loading-bar"></div>
@@ -435,7 +111,7 @@
 
   <div class="results" id="results">
     <div class="results-header">
-      <span class="results-title" id="resultsTitle">UPCOMING TRAINS</span>
+      <span class="results-title" id="resultsTitle"></span>
       <span class="results-count" id="resultsCount"></span>
     </div>
     <div id="trainList"></div>
@@ -443,241 +119,204 @@
   </div>
 
   <div class="tip">
-    <strong>說明：</strong>班次為未來 2 小時內發車。若列車已誤點，以<span style="color:var(--warn)">預計實際到站時間</span>為準，尚未抵達的列車仍會顯示。資料來源：TDX 台鐵即時看板（延遲約 2 分鐘）。
+    <strong>說明：</strong>班次為未來 2 小時內。若列車誤點，以<span style="color:var(--warn)">實際預計時間</span>為準，尚未抵達的列車仍會顯示。資料來源：TDX 台鐵即時看板（延遲約 2 分鐘）。
   </div>
-
 </div>
 
 <script>
-// ── 設定 ──────────────────────────────────────────
-const CLIENT_ID = 'angus.huang105-b5c22287-d848-4aeb';
+const CLIENT_ID     = 'angus.huang105-b5c22287-d848-4aeb';
 const CLIENT_SECRET = '3a434c0c-2804-4819-bc70-2a79577edf4a';
-const TOKEN_URL = 'https://tdx.transportdata.tw/auth/realms/TDXConnect/protocol/openid-connect/token';
-const API_BASE = 'https://tdx.transportdata.tw/api/basic/v2/Rail/TRA';
+const TOKEN_URL     = 'https://tdx.transportdata.tw/auth/realms/TDXConnect/protocol/openid-connect/token';
+const API_BASE      = 'https://tdx.transportdata.tw/api/basic/v2/Rail/TRA';
 
-// 站碼
-const XIKE_CODE = '0960';
+// 站碼：汐科=0960, 板橋=1010
+// 數字意義：台鐵站碼數字愈小愈靠近宜蘭/基隆端，愈大愈靠近高雄端
+// 汐科(960) < 板橋(1010)，所以汐科→板橋是往數字大的方向（南下，Direction=0）
+const XIKE_CODE    = '0960';
 const BANQIAO_CODE = '1010';
+const XIKE_NUM     = 960;
+const BANQIAO_NUM  = 1010;
 
-// 車種名稱對照
 const TRAIN_TYPES = {
-  '1': { name: '太魯閣', cls: 'type-tze' },
-  '2': { name: '普悠瑪', cls: 'type-chu' },
-  '3': { name: '自強', cls: 'type-express' },
-  '4': { name: '莒光', cls: 'type-express' },
-  '5': { name: '復興', cls: 'type-local' },
-  '6': { name: '區間快', cls: 'type-express' },
-  '7': { name: '區間', cls: 'type-local' },
-  '10': { name: '普快', cls: 'type-local' },
+  '1':{ name:'太魯閣', cls:'type-tze' },
+  '2':{ name:'普悠瑪', cls:'type-chu' },
+  '3':{ name:'自強',   cls:'type-express' },
+  '4':{ name:'莒光',   cls:'type-express' },
+  '5':{ name:'復興',   cls:'type-local' },
+  '6':{ name:'區間快', cls:'type-express' },
+  '7':{ name:'區間',   cls:'type-local' },
+  '10':{ name:'普快',  cls:'type-local' },
 };
 
-let currentDir = 'to-banqiao'; // or 'to-xike'
+let currentDir = 'to-banqiao';
 
-// ── 時鐘 ──────────────────────────────────────────
+// 時鐘
 function updateClock() {
-  const now = new Date();
-  const h = String(now.getHours()).padStart(2,'0');
-  const m = String(now.getMinutes()).padStart(2,'0');
-  const s = String(now.getSeconds()).padStart(2,'0');
-  document.getElementById('clock').textContent = `${h}:${m}:${s}`;
+  const n = new Date();
+  document.getElementById('clock').textContent =
+    [n.getHours(),n.getMinutes(),n.getSeconds()].map(v=>String(v).padStart(2,'0')).join(':');
 }
 setInterval(updateClock, 1000);
 updateClock();
 
-// ── 方向切換 ──────────────────────────────────────
 function setDir(dir) {
   currentDir = dir;
-  document.getElementById('tab-to-banqiao').className = 'tab-btn' + (dir === 'to-banqiao' ? ' active' : '');
-  document.getElementById('tab-to-xike').className = 'tab-btn' + (dir === 'to-xike' ? ' active' : '');
-  // 清空結果
+  document.getElementById('tab-to-banqiao').className = 'tab-btn'+(dir==='to-banqiao'?' active':'');
+  document.getElementById('tab-to-xike').className    = 'tab-btn'+(dir==='to-xike'?' active':'');
   document.getElementById('results').classList.remove('visible');
   document.getElementById('errorBox').classList.remove('visible');
 }
 
-// ── 取得 Token ────────────────────────────────────
 async function getToken() {
-  const body = new URLSearchParams({
-    grant_type: 'client_credentials',
-    client_id: CLIENT_ID,
-    client_secret: CLIENT_SECRET
-  });
   const res = await fetch(TOKEN_URL, {
-    method: 'POST',
-    headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
-    body: body.toString()
+    method:'POST',
+    headers:{'Content-Type':'application/x-www-form-urlencoded'},
+    body: new URLSearchParams({
+      grant_type:'client_credentials',
+      client_id: CLIENT_ID,
+      client_secret: CLIENT_SECRET
+    }).toString()
   });
-  if (!res.ok) throw new Error(`Token 取得失敗 (${res.status})`);
-  const data = await res.json();
-  return data.access_token;
+  if (!res.ok) throw new Error(`Token失敗(${res.status})`);
+  return (await res.json()).access_token;
 }
 
-// ── 主查詢 ────────────────────────────────────────
 async function fetchTrains() {
-  const btn = document.getElementById('queryBtn');
-  const loading = document.getElementById('loading');
-  const errorBox = document.getElementById('errorBox');
-  const results = document.getElementById('results');
+  const btn=document.getElementById('queryBtn'),
+        loading=document.getElementById('loading'),
+        errorBox=document.getElementById('errorBox'),
+        results=document.getElementById('results');
 
-  btn.disabled = true;
+  btn.disabled=true;
   loading.classList.add('visible');
   errorBox.classList.remove('visible');
   results.classList.remove('visible');
 
   try {
-    // 出發站
-    const fromStation = currentDir === 'to-banqiao' ? XIKE_CODE : BANQIAO_CODE;
+    const fromCode = currentDir==='to-banqiao' ? XIKE_CODE : BANQIAO_CODE;
+    const token    = await getToken();
 
-    const token = await getToken();
+    const url = `${API_BASE}/LiveBoard/Station/${fromCode}?$format=JSON`;
+    const res = await fetch(url, { headers:{'Authorization':`Bearer ${token}`} });
+    if (!res.ok) throw new Error(`查詢失敗(${res.status})`);
 
-    // 查詢出發站的即時看板
-    const url = `${API_BASE}/LiveBoard/Station/${fromStation}?$format=JSON`;
-    const res = await fetch(url, {
-      headers: { 'Authorization': `Bearer ${token}` }
-    });
-    if (!res.ok) throw new Error(`班次查詢失敗 (${res.status})`);
-    const data = await res.json();
-
+    const data   = await res.json();
     const trains = data.TrainLiveBoards || [];
     renderResults(trains);
 
-  } catch (err) {
-    errorBox.textContent = `❌ 查詢失敗：${err.message}\n\n請確認網路連線，或稍後再試。`;
+  } catch(err) {
+    errorBox.textContent = `查詢失敗：${err.message}`;
     errorBox.classList.add('visible');
   } finally {
-    btn.disabled = false;
+    btn.disabled=false;
     loading.classList.remove('visible');
   }
 }
 
-// ── 篩選與渲染 ────────────────────────────────────
-function renderResults(trains) {
-  const now = new Date();
-  const twoHoursLater = new Date(now.getTime() + 2 * 60 * 60 * 1000);
-
-  const destStation = currentDir === 'to-banqiao' ? BANQIAO_CODE : XIKE_CODE;
-
-  // 篩選條件：
-  // 1. 終點站或停靠站包含目標站（往板橋 or 往汐科）
-  // 2. 實際發車時間（預定 + 誤點）>= 現在時間（未發車）
-  // 3. 預定發車時間在 2 小時內
-
-  const filtered = trains.filter(t => {
-    // 方向判斷：終點站代碼
-    // TRA LiveBoard 的 EndingStationID 是終點，DestinationStationName 也可參考
-    // 更可靠的方式：確認列車的 EndingStationID 或 StopSequence
-
-    // 判斷是否停靠目標站（用 EndingStationID 只能抓終點）
-    // 這裡用 Direction: 0=南下(台北→基隆反向，汐科→板橋是南下), 1=北上
-    // 汐科在板橋的北邊，汐科→板橋是往南（Direction=0）
-    // 板橋→汐科是往北（Direction=1）
-    const wantDir = currentDir === 'to-banqiao' ? 0 : 1;
-    if (t.Direction !== wantDir) return false;
-
-    // 預定發車時間
-    const scheduledTime = parseTime(t.ScheduledDepartureTime || t.ScheduledArrivalTime);
-    if (!scheduledTime) return false;
-
-    // 實際預計時間（加上誤點）
-    const delayMin = t.DelayTime || 0;
-    const actualTime = new Date(scheduledTime.getTime() + delayMin * 60000);
-
-    // 條件：實際時間還沒過（車還沒走）且預定時間在 2 小時內
-    return actualTime >= now && scheduledTime <= twoHoursLater;
-  });
-
-  // 按實際時間排序
-  filtered.sort((a, b) => {
-    const at = getActualTime(a);
-    const bt = getActualTime(b);
-    return at - bt;
-  });
-
-  // 渲染
-  const list = document.getElementById('trainList');
-  const resultsDiv = document.getElementById('results');
-  const resultsCount = document.getElementById('resultsCount');
-  const resultsTitle = document.getElementById('resultsTitle');
-  const updateTime = document.getElementById('updateTime');
-
-  const dirText = currentDir === 'to-banqiao' ? '汐科 → 板橋' : '板橋 → 汐科';
-  resultsTitle.textContent = `${dirText} 未來班次`;
-  resultsCount.textContent = `共 ${filtered.length} 班`;
-
-  if (filtered.length === 0) {
-    list.innerHTML = `<div class="no-trains">目前查無未來 2 小時班次<br><br>可能為離峰時段或資料延遲</div>`;
-  } else {
-    list.innerHTML = filtered.map((t, i) => renderCard(t, i)).join('');
-  }
-
-  const nowStr = new Date().toLocaleTimeString('zh-TW', { hour: '2-digit', minute: '2-digit', second: '2-digit' });
-  updateTime.textContent = `資料更新時間：${nowStr}（TDX 資料約延遲 2 分鐘）`;
-
-  resultsDiv.classList.add('visible');
-}
-
-function parseTime(timeStr) {
-  if (!timeStr) return null;
-  // format: "HH:mm:ss" or "HH:mm"
-  const today = new Date();
-  const [h, m, s] = timeStr.split(':').map(Number);
-  const d = new Date(today.getFullYear(), today.getMonth(), today.getDate(), h, m || 0, s || 0);
-  // 若時間小於現在 4 小時以上，可能是跨午夜班次（深夜情境，簡單處理）
-  if (d < new Date(Date.now() - 4 * 3600000)) d.setDate(d.getDate() + 1);
+// 解析 "HH:mm:ss" 或 "HH:mm" 為今日 Date
+function parseTime(str) {
+  if (!str) return null;
+  const [h=0,m=0,s=0] = str.split(':').map(Number);
+  const d = new Date();
+  d.setHours(h,m,s,0);
+  // 若比現在早超過4小時，視為跨日班次
+  if (d < new Date(Date.now()-4*3600000)) d.setDate(d.getDate()+1);
   return d;
 }
 
 function getActualTime(t) {
-  const scheduled = parseTime(t.ScheduledDepartureTime || t.ScheduledArrivalTime);
-  if (!scheduled) return new Date(9999, 0);
-  const delay = t.DelayTime || 0;
-  return new Date(scheduled.getTime() + delay * 60000);
+  const base = parseTime(t.ScheduledDepartureTime || t.ScheduledArrivalTime);
+  if (!base) return new Date(9999,0);
+  return new Date(base.getTime() + (t.DelayTime||0)*60000);
+}
+
+function renderResults(trains) {
+  const now         = new Date();
+  const twoHrsLater = new Date(now.getTime()+2*3600000);
+  const fromNum     = currentDir==='to-banqiao' ? XIKE_NUM   : BANQIAO_NUM;
+  const toNum       = currentDir==='to-banqiao' ? BANQIAO_NUM : XIKE_NUM;
+
+  const filtered = trains.filter(t => {
+    // 1. 時間篩選
+    const sched  = parseTime(t.ScheduledDepartureTime || t.ScheduledArrivalTime);
+    if (!sched) return false;
+    const actual = getActualTime(t);
+    if (actual < now)          return false;  // 車已離站
+    if (sched  > twoHrsLater)  return false;  // 超過2小時
+
+    // 2. 方向篩選（多重備援策略）
+    // 策略A：用 Direction 欄位（最可靠）
+    //   Direction=0 順行（往高雄/花蓮方向，即南下，汐科→板橋）
+    //   Direction=1 逆行（往基隆/宜蘭方向，即北上，板橋→汐科）
+    if (typeof t.Direction === 'number') {
+      const want = currentDir==='to-banqiao' ? 0 : 1;
+      return t.Direction === want;
+    }
+
+    // 策略B：用 EndingStationID 數字大小（合理推測，非官方定義）
+    //   汐科(960)→板橋(1010)：終點站碼應 > 出發站碼（往南走，數字變大）
+    //   板橋(1010)→汐科(960)：終點站碼應 < 出發站碼（往北走，數字變小）
+    if (t.EndingStationID) {
+      const endNum = parseInt(t.EndingStationID, 10);
+      return currentDir==='to-banqiao' ? endNum > fromNum : endNum < fromNum;
+    }
+
+    // 策略C：若以上都沒有，保留該班次（寧可多顯示）
+    return true;
+  });
+
+  // 按實際時間排序
+  filtered.sort((a,b) => getActualTime(a)-getActualTime(b));
+
+  // 渲染
+  const dirText = currentDir==='to-banqiao' ? '汐科 → 板橋' : '板橋 → 汐科';
+  document.getElementById('resultsTitle').textContent = `${dirText} 未來班次`;
+  document.getElementById('resultsCount').textContent = `共 ${filtered.length} 班`;
+
+  const list = document.getElementById('trainList');
+  if (filtered.length===0) {
+    list.innerHTML=`<div class="no-trains">
+      目前查無未來 2 小時班次<br>
+      <span style="font-size:10px">API 共回傳 ${trains.length} 筆・可能為離峰時段或資料延遲</span>
+    </div>`;
+  } else {
+    list.innerHTML = filtered.map(renderCard).join('');
+  }
+
+  const nowStr = now.toLocaleTimeString('zh-TW',{hour:'2-digit',minute:'2-digit',second:'2-digit'});
+  document.getElementById('updateTime').textContent = `資料更新時間：${nowStr}（TDX 資料約延遲 2 分鐘）`;
+  document.getElementById('results').classList.add('visible');
 }
 
 function renderCard(t, idx) {
-  const delay = t.DelayTime || 0;
-  const scheduledStr = t.ScheduledDepartureTime || t.ScheduledArrivalTime || '--:--';
-  const scheduled = parseTime(scheduledStr);
-  const actual = getActualTime(t);
+  const delay    = t.DelayTime || 0;
+  const sched    = parseTime(t.ScheduledDepartureTime || t.ScheduledArrivalTime);
+  const actual   = getActualTime(t);
+  const fmt      = d => d ? [d.getHours(),d.getMinutes()].map(v=>String(v).padStart(2,'0')).join(':') : '--:--';
+  const typeInfo = TRAIN_TYPES[String(t.TrainTypeCode||'7')] || {name:'列車',cls:'type-local'};
 
-  const scheduledDisplay = scheduled
-    ? `${String(scheduled.getHours()).padStart(2,'0')}:${String(scheduled.getMinutes()).padStart(2,'0')}`
-    : '--:--';
-  const actualDisplay = actual
-    ? `${String(actual.getHours()).padStart(2,'0')}:${String(actual.getMinutes()).padStart(2,'0')}`
-    : '--:--';
-
-  const typeCode = String(t.TrainTypeCode || '7');
-  const typeInfo = TRAIN_TYPES[typeCode] || { name: '列車', cls: 'type-local' };
-
-  const delayBadge = delay === 0
+  const delayBadge = delay===0
     ? `<span class="delay-badge delay-0">準點</span>`
     : `<span class="delay-badge delay-late">誤點 +${delay} 分</span>`;
 
-  const cardClass = delay > 0 ? 'delayed' : 'on-time';
-  const destName = currentDir === 'to-banqiao'
-    ? (t.EndingStationName || '終點')
-    : (t.EndingStationName || '終點');
-
-  const timePart = delay > 0
+  const timePart = delay>0
     ? `<div class="train-times">
-        <span class="time-scheduled" style="text-decoration:line-through;color:var(--text-dim);font-size:18px">${scheduledDisplay}</span>
+        <span class="time-scheduled" style="text-decoration:line-through;color:var(--text-dim);font-size:18px">${fmt(sched)}</span>
         <span class="time-arrow">→</span>
-        <span class="time-actual">${actualDisplay}</span>
-      </div>`
-    : `<div class="train-times">
-        <span class="time-scheduled">${scheduledDisplay}</span>
-      </div>`;
+        <span class="time-actual">${fmt(actual)}</span>
+       </div>`
+    : `<div class="train-times"><span class="time-scheduled">${fmt(sched)}</span></div>`;
 
   return `
-    <div class="train-card ${cardClass}" style="animation-delay:${idx * 0.05}s">
+    <div class="train-card ${delay>0?'delayed':'on-time'}" style="animation-delay:${idx*0.05}s">
       <div class="train-top">
-        <div class="train-no">${t.TrainNo || '----'}</div>
+        <div class="train-no">${t.TrainNo||'----'}</div>
         <span class="train-type ${typeInfo.cls}">${typeInfo.name}</span>
       </div>
       ${timePart}
       <div class="train-bottom">
         ${delayBadge}
-        <span class="train-dest">往 ${destName}</span>
+        <span class="train-dest">往 ${t.EndingStationName||'---'}</span>
       </div>
     </div>`;
 }
