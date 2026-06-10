@@ -1,0 +1,57 @@
+name: Daily public equity research
+run-name: Daily public equity research - Taipei 11:30
+
+on:
+  workflow_dispatch:
+  schedule:
+    # 11:30 Asia/Taipei = 03:30 UTC. GitHub cron uses UTC.
+    - cron: '30 3 * * *'
+
+jobs:
+  daily-equity-research:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+    env:
+      TZ: Asia/Taipei
+      REPORT_PATH: reports/daily-equity-${{ github.run_id }}.md
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+
+      - name: Confirm Taipei delivery time
+        run: |
+          echo "Scheduled delivery target: every day at 11:30 Asia/Taipei (03:30 UTC)."
+          echo "Current Taipei time: $(date '+%Y-%m-%d %H:%M:%S %Z')"
+
+      - name: Generate report
+        env:
+          RAPIDAPI_KEY: ${{ secrets.RAPIDAPI_KEY }}
+          RAPIDAPI_HOST: ${{ vars.RAPIDAPI_HOST }}
+          RAPIDAPI_QUOTE_URL: ${{ vars.RAPIDAPI_QUOTE_URL }}
+          ALPHAVANTAGE_API_KEY: ${{ secrets.ALPHAVANTAGE_API_KEY }}
+        run: |
+          mkdir -p reports
+          python investing_agent/scripts/daily_public_equity_report.py --output "$REPORT_PATH"
+          cp "$REPORT_PATH" "reports/daily-equity-$(date +%F).md"
+
+      - name: Publish report in workflow summary
+        run: |
+          {
+            echo "# 每日台股與美股公開股票投資研究報告"
+            echo ""
+            echo "自動產生時間：$(date '+%Y-%m-%d %H:%M:%S %Z')"
+            echo ""
+            cat "$REPORT_PATH"
+          } >> "$GITHUB_STEP_SUMMARY"
+
+      - name: Upload report artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: daily-equity-report
+          path: reports/*.md

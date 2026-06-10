@@ -1,0 +1,13 @@
+# Local secrets and environment files
+.env
+.env.*
+!.env.example
+!investing_agent/.env.example
+
+# Python cache / build artifacts
+__pycache__/
+*.py[cod]
+.pytest_cache/
+
+# Generated reports
+reports/
